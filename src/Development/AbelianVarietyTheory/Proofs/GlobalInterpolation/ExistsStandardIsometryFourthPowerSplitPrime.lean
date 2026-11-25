@@ -8,6 +8,7 @@ public import Mathlib.RingTheory.Ideal.Norm.AbsNorm
 public import Formalism.LocalToGlobal.KernelLattices.LateralTheory
 public import Mathlib.RingTheory.DedekindDomain.AdicValuation.Valuation
 public import Development.AbelianVarietyTheory.Proofs.GlobalInterpolation.ComplexPadicNormKappaSplitPrime
+import Formalism.SharedLemmas.NormLeOneOfIntegral
 public import Formalism.LocalToGlobal.KernelLattices.KernelLocalFactors.IsAdmissibleFlagPairOfUnitriangularLeftAutomorph
 public import Formalism.LocalToGlobal.GlobalTheory.GL3.PFamily
 public import Formalism.LocalToGlobal.GlobalTheory.GL3.PStdOK
@@ -99,15 +100,9 @@ noncomputable section
 
 namespace GlobalTheory.ConjPlace
 
-theorem norm_le_one_of_isIntegral {q : ℕ} [Fact q.Prime] {x : ℂ_[q]} (hx : IsIntegral ℤ x) : ‖x‖ ≤ 1 := by
-  have h1 : IsIntegral (NormedField.valuation (K := ℂ_[q])).integer x := hx.tower_top
-  have h2 := (Valuation.integer.integers (NormedField.valuation (K := ℂ_[q]))).mem_of_integral h1
-  have h3 : ‖x‖₊ ≤ 1 := h2
-  exact_mod_cast h3
-
 theorem norm_le_one_of_int {q : ℕ} [Fact q.Prime] {K : Type} [Field K] (j : K →+* ℂ_[q]) (y : 𝓞 K) :
     ‖j (y : K)‖ ≤ 1 :=
-  norm_le_one_of_isIntegral (by convert map_isIntegral_int j (RingOfIntegers.isIntegral_coe y); exact Subsingleton.elim _ _)
+  Formalism.SharedLemmas.norm_le_one_of_isIntegral (map_isIntegral_int j (RingOfIntegers.isIntegral_coe y))
 
 theorem norm_intCast_eq (q : ℕ) [Fact q.Prime] (n : ℤ) : ‖((n : ℤ) : ℂ_[q])‖ = ‖((n : ℤ) : ℚ_[q])‖ := by
   have e : ((n : ℤ) : ℂ_[q]) = algebraMap ℚ_[q] ℂ_[q] ((n : ℤ) : ℚ_[q]) := (map_intCast _ n).symm
@@ -347,18 +342,9 @@ namespace GlobalTheory.KapVal
 
 open IsDedekindDomain
 
-theorem norm_le_one_of_isIntegral {q : ℕ} [Fact q.Prime] {x : ℂ_[q]} (hx : IsIntegral ℤ x) :
-    ‖x‖ ≤ 1 := by
-  have h1 : IsIntegral (NormedField.valuation (K := ℂ_[q])).integer x := hx.tower_top
-  have h2 := (Valuation.integer.integers (NormedField.valuation (K := ℂ_[q]))).mem_of_integral h1
-  have h3 : ‖x‖₊ ≤ 1 := h2
-  exact_mod_cast h3
-
 theorem norm_le_one_of_int {q : ℕ} [Fact q.Prime] {K : Type} [Field K] [NumberField K] (j : K →+* ℂ_[q])
     (y : 𝓞 K) : ‖j (y : K)‖ ≤ 1 :=
-  norm_le_one_of_isIntegral (by
-    convert map_isIntegral_int j (RingOfIntegers.isIntegral_coe y)
-    exact Subsingleton.elim _ _)
+  Formalism.SharedLemmas.norm_le_one_of_isIntegral (map_isIntegral_int j (RingOfIntegers.isIntegral_coe y))
 
 theorem norm_natCast_lt_one (q : ℕ) [Fact q.Prime] : ‖((q : ℕ) : ℂ_[q])‖ < 1 := by
   have e : ((q : ℕ) : ℂ_[q]) = ((algebraMap ℚ_[q] (PadicAlgCl q) (q : ℚ_[q]) : PadicAlgCl q) : ℂ_[q]) := by

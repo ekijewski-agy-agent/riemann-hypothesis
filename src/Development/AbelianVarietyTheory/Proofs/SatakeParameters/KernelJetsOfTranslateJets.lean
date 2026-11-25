@@ -4,6 +4,7 @@ public import Development.AbelianVarietyTheory.BlockTheory.ThetaLiftGeometry.Ker
 public import Formalism.SharpRestriction.GlobalSchurBounds.GL3Theta
 public import Development.AbelianVarietyTheory.Proofs.FoundationProofs.IsTraceCompatibleTorusEmbeddingStandardTorus
 import Formalism.SharpRestriction.GlobalSchurBounds.GlobalRankLatticeProofs.UnitTraceSumBounds.FamilyLogGammaSmallHolds
+import Formalism.SharedLemmas.NormLeOneOfIntegral
 import Mathlib.Algebra.Order.Floor.Extended
 import Mathlib.Algebra.Order.Floor.Semifield
 import Mathlib.Algebra.Order.Interval.Basic
@@ -53,13 +54,6 @@ open NumberField Formalism.BasicNotions Formalism.MainNotions Formalism.MainNoti
 
 section Integral
 
-theorem norm_le_one_of_isIntegral {C : Type} [NormedField C] [IsUltrametricDist C] {x : C}
-    (hx : @IsIntegral ℤ C _ _ (Ring.toIntAlgebra C) x) : ‖x‖ ≤ 1 := by
-  have h : x ∈ (NormedField.valuation (K := C)).integer :=
-    (Valuation.integer.integers (NormedField.valuation (K := C))).mem_of_integral hx.tower_top
-  rw [Valuation.mem_integer_iff, NormedField.valuation_apply] at h
-  exact_mod_cast h
-
 variable {p : ℕ} [Fact p.Prime] {lam : Qbar →+* ℂ_[p]}
 
 theorem intAt_iff {x : ℂ} : IntAt lam x ↔ ∃ h : x ∈ Qbar, ‖lam ⟨x, h⟩‖ ≤ 1 := by
@@ -87,7 +81,7 @@ theorem intAt_of_isIntegral {x : ℂ} (hx : IsIntegral ℤ x) : IntAt lam x := b
   refine intAt_iff.2 ⟨h, ?_⟩
   have h1 : IsIntegral ℤ (⟨x, h⟩ : Qbar) :=
     (isIntegral_algHom_iff ((algebraMap Qbar ℂ).toIntAlgHom) Subtype.val_injective).1 hx
-  exact norm_le_one_of_isIntegral (map_isIntegral_int lam h1)
+  exact Formalism.SharedLemmas.norm_le_one_of_isIntegral (map_isIntegral_int lam h1)
 
 theorem intAt_sum {ι : Type} (s : Finset ι) (f : ι → ℂ) (h : ∀ i ∈ s, IntAt lam (f i)) : IntAt lam (∑ i ∈ s, f i) :=
   Finset.sum_induction f (IntAt lam) (fun _ _ => intAt_add) (intAt_of_isIntegral isIntegral_zero) h

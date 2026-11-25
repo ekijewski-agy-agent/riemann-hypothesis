@@ -1,6 +1,7 @@
 module
 
 public import Formalism.PeriodIntegrals.UnitaryGroupMassFormula.CompletionDegrees.DenseSurj
+import Formalism.SharedLemmas.NormLeOneOfIntegral
 import Mathlib.Algebra.Order.Floor.Extended
 import Mathlib.Algebra.Order.Floor.Semifield
 import Mathlib.Algebra.Order.Interval.Basic
@@ -100,48 +101,11 @@ theorem exists_den {l : ℕ} [Fact l.Prime] {E : Type} [Field E] [NumberField E]
       linarith
     · exact ⟨r, s, hr, hrel r s hdr⟩
 
-private theorem norm_le_one_of_isIntegral_int' {l : ℕ} [Fact l.Prime] (z : Om l)
-    (hz : IsIntegral ℤ z) : ‖z‖ ≤ 1 := by
-  obtain ⟨p, hmon, hp⟩ := hz
-  by_contra hgt
-  push_neg at hgt
-  have hcoef : ∀ c : ℤ, ‖(c : Om l)‖ ≤ 1 := fun c => by
-    first
-      | exact IsUltrametricDist.norm_intCast_le_one (Om l) c
-  rw [hmon.as_sum] at hp
-  simp only [Polynomial.eval₂_add, Polynomial.eval₂_finsetSum, Polynomial.eval₂_mul,
-    Polynomial.eval₂_X_pow, eq_intCast] at hp
-  have hcast : ∀ c : ℤ, Polynomial.eval₂ (algebraMap ℤ (Om l)) z (c : Polynomial ℤ) = (c : Om l) :=
-    fun c => map_intCast (Polynomial.eval₂RingHom (algebraMap ℤ (Om l)) z) c
-  simp only [hcast] at hp
-  rcases Nat.eq_zero_or_pos p.natDegree with h0 | hpos
-  · rw [h0] at hp
-    simp at hp
-  · have hsum : ‖∑ i ∈ Finset.range p.natDegree, ((p.coeff i : ℤ) : Om l) * z ^ i‖ ≤
-        ‖z‖ ^ (p.natDegree - 1) := by
-      apply IsUltrametricDist.norm_sum_le_of_forall_le_of_nonneg (by positivity)
-      intro i hi
-      have hi' : i ≤ p.natDegree - 1 := by
-        have := Finset.mem_range.mp hi
-        omega
-      rw [norm_mul, norm_pow]
-      calc ‖((p.coeff i : ℤ) : Om l)‖ * ‖z‖ ^ i ≤ 1 * ‖z‖ ^ (p.natDegree - 1) :=
-            mul_le_mul (hcoef _) (pow_le_pow_right₀ hgt.le hi') (by positivity) zero_le_one
-        _ = ‖z‖ ^ (p.natDegree - 1) := one_mul _
-    have heq : z ^ p.natDegree = -∑ i ∈ Finset.range p.natDegree, ((p.coeff i : ℤ) : Om l) * z ^ i :=
-      eq_neg_of_add_eq_zero_left hp
-    have hn : ‖z ^ p.natDegree‖ ≤ ‖z‖ ^ (p.natDegree - 1) := by
-      rw [heq, norm_neg]
-      exact hsum
-    rw [norm_pow] at hn
-    have hlt : ‖z‖ ^ (p.natDegree - 1) < ‖z‖ ^ p.natDegree := pow_lt_pow_right₀ hgt (by omega)
-    linarith
-
 theorem denseSurj : DenseSurj := by
   intro l _ E _ _ φ K hK hcl y hy hy1
   classical
   have hint : ∀ x : 𝓞 E, ‖φ (algebraMap (𝓞 E) E x)‖ ≤ 1 := fun x =>
-    norm_le_one_of_isIntegral_int' _ ((x.isIntegral_coe).map φ.toIntAlgHom)
+    Formalism.SharedLemmas.norm_le_one_of_isIntegral ((x.isIntegral_coe).map φ.toIntAlgHom)
   have hl0 : ((l : ℕ) : Om l) ≠ 0 := by
     have hE : ((l : ℕ) : E) ≠ 0 := Nat.cast_ne_zero.mpr (Fact.out : l.Prime).ne_zero
     rw [← map_natCast φ l]

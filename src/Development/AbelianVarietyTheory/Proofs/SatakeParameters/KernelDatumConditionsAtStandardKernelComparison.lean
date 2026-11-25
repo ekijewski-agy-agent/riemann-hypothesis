@@ -8,6 +8,7 @@ public import Formalism.LocalRingCardinality.HostCls
 public import Formalism.LocalToGlobal.InertKernelTheory.InertCoprimeLemmas.GlobalOrthonormalBasisFour
 public import Formalism.LocalToGlobal.InertKernelTheory.InertCoprimeLemmas.IntWAPlaces
 public import Formalism.LocalToGlobal.InertKernelTheory.InertCoprimeLemmas.JetsOrth
+import Formalism.SharedLemmas.NormLeOneOfIntegral
 public import Formalism.LocalToGlobal.TorsionIntegrality.GaussSumParity.BiextensionRelation
 public import Development.AbelianVarietyTheory.Definitions.GaloisGeometry.ThetaZJetsThree
 public import Development.AbelianVarietyTheory.Definitions.GaloisGeometry.FourthPowerTheta
@@ -455,16 +456,9 @@ theorem exists_model (g2 g3 : ℂ_[3]) (hΔ : g2 ^ 3 - 27 * g3 ^ 2 = 1) (hj : �
       exact mul_le_one₀ ha (norm_nonneg _) hb
     · rw [hD, norm_one]
 
-theorem norm_le_one_of_isIntegral {C : Type} [NormedField C] [IsUltrametricDist C] {x : C}
-    (hx : @IsIntegral ℤ C _ _ (Ring.toIntAlgebra C) x) : ‖x‖ ≤ 1 := by
-  have h : x ∈ (NormedField.valuation (K := C)).integer :=
-    (Valuation.integer.integers (NormedField.valuation (K := C))).mem_of_integral hx.tower_top
-  rw [Valuation.mem_integer_iff, NormedField.valuation_apply] at h
-  exact_mod_cast h
-
 theorem norm_iota_le_one (ι : ℂ ≃+* ℂ_[3]) {x : ℂ} (hx : IsIntegral ℤ x) : ‖ι x‖ ≤ 1 := by
   obtain ⟨f, hf, hr⟩ := hx
-  refine norm_le_one_of_isIntegral ⟨f, hf, ?_⟩
+  refine Formalism.SharedLemmas.norm_le_one_of_isIntegral ⟨f, hf, ?_⟩
   have h := congrArg (ι : ℂ →+* ℂ_[3]) hr
   rw [map_zero, Polynomial.hom_eval₂] at h
   have e : (@algebraMap ℤ ℂ_[3] _ _ (Ring.toIntAlgebra ℂ_[3])) = (ι : ℂ →+* ℂ_[3]).comp (algebraMap ℤ ℂ) :=
